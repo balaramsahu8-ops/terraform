@@ -50,10 +50,16 @@ resource "aws_security_group" "my_security_group" {
 
 # EC2 instance
 resource "aws_instance" "terra_ec2_instance" {
-  key_name        = aws_key_pair.my_key.key_name
+  # count = 2 # meta arguments 
+  for_each = tomap({
+    BALARAM_Terra_macro = "t3.micro"
+    BALARAM_Terra_small = "t3.small"
+    })
+  key_name               = aws_key_pair.my_key.key_name
   vpc_security_group_ids = [aws_security_group.my_security_group.id]
-  instance_type   = var.aws_ec2_instance
-  ami             = var.ec2_ami_id
+  instance_type = each.value
+  # instance_type          = var.aws_ec2_instance
+  ami                    = var.ec2_ami_id
 
   root_block_device {
     volume_size = var.aws_root_starage_size
@@ -63,6 +69,6 @@ resource "aws_instance" "terra_ec2_instance" {
   user_data = file("install_ngnix.sh")
 
   tags = {
-    Name = "terra_ec2_demo"
-  }
+    Name = each.key
+    }
 }
