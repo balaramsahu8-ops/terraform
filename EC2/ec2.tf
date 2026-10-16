@@ -51,10 +51,14 @@ resource "aws_security_group" "my_security_group" {
 # EC2 instance
 resource "aws_instance" "terra_ec2_instance" {
   # count = 2 # meta arguments 
+  # below is for each meta argument
   for_each = tomap({
     BALARAM_Terra_macro = "t3.micro"
     BALARAM_Terra_small = "t3.small"
     })
+# depend on is also one meta arguments this section
+  depends_on = [ aws_security_group.my_security_group ,aws_key_pair.my_key ]
+
   key_name               = aws_key_pair.my_key.key_name
   vpc_security_group_ids = [aws_security_group.my_security_group.id]
   instance_type = each.value
